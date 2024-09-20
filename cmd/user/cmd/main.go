@@ -24,9 +24,9 @@ func main() {
 	}
 
 	router := gin.Default()
+	api.SetUpRoutes(router, db, cfg)
 
 	err = router.Run(cfg.ServerAddress)
-	api.SetUpRoutes(router, db, cfg)
 
 	if err != nil {
 		log.Fatal().Err(err).Msg("User service: Failed to start server")
