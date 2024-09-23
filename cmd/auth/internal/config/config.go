@@ -6,16 +6,16 @@ import (
 	"os"
 )
 
-type TokenConfig struct {
+type Config struct {
 	SecretKey string
 }
 
-func LoadTokenConfig(path string) (*TokenConfig, error) {
+func LoadConfig(path string) (*Config, error) {
 	err := godotenv.Load(path)
 	if err != nil {
 		return nil, err
 	}
-	config := &TokenConfig{
+	config := &Config{
 		SecretKey: os.Getenv("SECRET_KEY"),
 	}
 

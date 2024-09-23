@@ -18,7 +18,7 @@ func LoadConfig() (*Config, error) {
 	}
 	config := &Config{
 		DatabaseUrl:   os.Getenv("DATABASE_URL"),
-		ServerAddress: os.Getenv("SERVER_ADDRESS"),
+		ServerAddress: os.Getenv("USER_SERVICE_ADDRESS"),
 		LogLevel:      os.Getenv("LOG_LEVEL"),
 	}
 

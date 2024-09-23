@@ -42,7 +42,7 @@ func (h *UserHandler) FindUserLoginByUserName(c *gin.Context) {
 	roleNames = strings.TrimSpace(roleNames)
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": &response.UserLoginResponse{
+		"data": &response.UserInfoResponse{
 			Username:     user.Username,
 			HashPassword: user.Password,
 			Roles:        roleNames,
