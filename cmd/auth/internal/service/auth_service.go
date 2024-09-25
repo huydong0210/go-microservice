@@ -10,7 +10,7 @@ import (
 type AuthServiceInterface interface {
 	Login(username, password string) (string, error)
 	Register(username, password, email string) error
-	GenerateToken(username, roles string) (string, error)
+	GenerateToken(username, roles, email string) (string, error)
 	ParseToken(token string) (*jwt.Token, error)
 }
 

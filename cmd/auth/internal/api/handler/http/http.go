@@ -1,8 +1,9 @@
 package http
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/joho/godotenv"
+	"go-microservices/internal/api/response"
 	"io"
 	"log"
 	"net/http"
@@ -27,34 +28,37 @@ func NewHttpHandler() *HttpHandler {
 	}
 	return &HttpHandler{address: address}
 }
-func (h *HttpHandler) GetUserInfoByUsername(username string) {
+func (h *HttpHandler) GetUserInfoByUsername(username string) (*response.UserInfoResponse, error) {
+
+	var result response.UserInfoResponse
 	log.Println("Calling user service : GetUserInfoByUsername()")
 	uri := buildUrI(h.address.userServiceAddress) + username
 	request, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	request.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	client := &http.Client{}
-	response, error := client.Do(request)
-	if error != nil {
-		fmt.Println(error)
+	response, err := client.Do(request)
+	if err != nil {
+		return nil, err
 	}
 
-	responseBody, error := io.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	_ = responseBody
-
-	if error != nil {
-		fmt.Println(error)
+	if err != nil {
+		return nil, err
 	}
 
-	//formattedData := formatJSON(responseBody)
-	//fmt.Println("Status: ", response.Status)
-	//fmt.Println("Response body: ", formattedData)
+	err = json.Unmarshal(responseBody, &result)
+	if err != nil {
+		return nil, err
+	}
 
 	// clean up memory after execution
 	defer response.Body.Close()
+	return &result, nil
 }
 
 func loadAddressConfig() (*AddressServiceConfig, error) {

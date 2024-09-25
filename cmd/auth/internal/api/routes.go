@@ -6,5 +6,6 @@ import (
 
 func SetUpRoutes(router *gin.Engine) {
 	//authService := service.NewAuthService()
+	//httpHandler := http.NewHttpHandler()
 
 }

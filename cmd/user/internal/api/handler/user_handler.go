@@ -2,8 +2,8 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-microservices/cmd/user/internal/api/response"
 	"go-microservices/cmd/user/internal/service"
+	"go-microservices/internal/api/response"
 	"net/http"
 	"strings"
 )
