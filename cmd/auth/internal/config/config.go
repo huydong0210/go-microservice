@@ -7,7 +7,9 @@ import (
 )
 
 type Config struct {
-	SecretKey string
+	SecretKey          string
+	DatabaseUrl        string
+	AuthServiceAddress string
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -16,7 +18,9 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, err
 	}
 	config := &Config{
-		SecretKey: os.Getenv("SECRET_KEY"),
+		SecretKey:          os.Getenv("SECRET_KEY"),
+		DatabaseUrl:        os.Getenv("DATABASE_URL"),
+		AuthServiceAddress: os.Getenv("AUTH_SERVICE_ADDRESS"),
 	}
 
 	return config, nil

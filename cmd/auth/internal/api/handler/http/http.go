@@ -32,7 +32,7 @@ func (h *HttpHandler) GetUserInfoByUsername(username string) (*response.UserInfo
 
 	var result response.UserInfoResponse
 	log.Println("Calling user service : GetUserInfoByUsername()")
-	uri := buildUrI(h.address.userServiceAddress) + username
+	uri := buildUrI(h.address.userServiceAddress) + "api/user/user-login/" + username
 	request, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
 		return nil, err
