@@ -9,6 +9,7 @@ import (
 )
 
 type UserPrincipal struct {
+	Id       uint   `json:"id"`
 	Username string `json:"username"`
 	Role     string `json:"role"`
 	Email    string `json:"email"`
@@ -16,7 +17,7 @@ type UserPrincipal struct {
 
 const USER_PRICIPAL_CONTEXT_KEY = "USER_PRINCIPAL"
 
-func JwtMiddleWare(key string) gin.HandlerFunc {
+func JwtMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {

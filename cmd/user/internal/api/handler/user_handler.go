@@ -45,6 +45,7 @@ func (h *UserHandler) FindUserLoginByUserName(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": &response.UserInfoResponse{
+			Id:           user.ID,
 			Username:     user.Username,
 			HashPassword: user.Password,
 			Roles:        roleNames,

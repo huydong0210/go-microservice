@@ -14,11 +14,12 @@ import (
 type AuthServiceInterface interface {
 	Login(username, password string) (*string, error)
 	Register(request *request.UserCreationRequest) error
-	GenerateToken(username, roles, email string) (string, error)
+	GenerateToken(id uint, username, roles, email string) (string, error)
 	ParseToken(token string) (*jwt.Token, error)
 }
 
 type CustomClaims struct {
+	Id       uint   `json:"id"`
 	Username string `json:"username"`
 	Role     string `json:"role"`
 	Email    string `json:"email"`
@@ -42,7 +43,7 @@ func (s *AuthService) Login(username, password string) (*string, error) {
 	if !helper.CheckPasswordHash(password, userInfo.HashPassword) {
 		return nil, error2.NewAppError("Password incorect")
 	}
-	token, err := s.GenerateToken(userInfo.Username, userInfo.Roles, userInfo.Email)
+	token, err := s.GenerateToken(userInfo.Id, userInfo.Username, userInfo.Roles, userInfo.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -53,8 +54,9 @@ func (s *AuthService) Register(request *request.UserCreationRequest) error {
 	return s.httpHandler.CreateUser(request)
 }
 
-func (s *AuthService) GenerateToken(username, roles, email string) (string, error) {
+func (s *AuthService) GenerateToken(id uint, username, roles, email string) (string, error) {
 	claims := CustomClaims{
+		Id:       id,
 		Username: username,
 		Role:     roles,
 		Email:    email,

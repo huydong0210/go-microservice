@@ -66,6 +66,7 @@ func (h *AuthHandler) ParseToken(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
+		"id":       claims.Id,
 		"username": claims.Username,
 		"email":    claims.Email,
 		"role":     claims.Role,
