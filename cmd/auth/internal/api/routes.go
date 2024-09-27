@@ -13,9 +13,10 @@ import (
 )
 
 func SetUpRoutes(router *gin.Engine, db *gorm.DB, cfg *config.Config) {
-	authService := service.NewAuthService(&cfg.SecretKey)
+
 	httpHandler := http.NewHttpHandler()
-	authHandler := handler.NewAuthHandler(authService, httpHandler)
+	authService := service.NewAuthService(&cfg.SecretKey, httpHandler)
+	authHandler := handler.NewAuthHandler(authService)
 
 	whiteIpRepo := repository2.NewWhiteIpRepository(db)
 	whiteIpService := service2.NewWhiteService(whiteIpRepo)
@@ -26,6 +27,7 @@ func SetUpRoutes(router *gin.Engine, db *gorm.DB, cfg *config.Config) {
 
 	{
 		authRoutes.POST("/login", authHandler.Login)
+		authRoutes.POST("/register", authHandler.Register)
 	}
 
 }

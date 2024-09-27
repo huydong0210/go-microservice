@@ -3,7 +3,9 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"go-microservices/cmd/user/internal/service"
+	request2 "go-microservices/internal/api/request"
 	"go-microservices/internal/api/response"
+	"gorm.io/gorm"
 	"net/http"
 	"strings"
 )
@@ -48,5 +50,37 @@ func (h *UserHandler) FindUserLoginByUserName(c *gin.Context) {
 			Roles:        roleNames,
 			Email:        user.Email,
 		},
+	})
+}
+func (h *UserHandler) CreateUser(c *gin.Context) {
+	var request request2.UserCreationRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	user, err := h.userService.FindUserByUserName(request.Username)
+
+	if err != nil && err != gorm.ErrRecordNotFound {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	if err != gorm.ErrRecordNotFound {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "user already exists",
+		})
+		return
+	}
+	if err := h.userService.CreateUser(&request); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"data": user,
 	})
 }

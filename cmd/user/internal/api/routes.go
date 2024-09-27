@@ -18,17 +18,18 @@ func SetUpRoutes(router *gin.Engine, db *gorm.DB, config *config.Config) {
 	rolService := service.NewRoleService(roleRepo)
 
 	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(userRepo, rolService)
 	userHandler := handler.NewUserHandler(userService, rolService)
 
 	whiteIpRepo := repository2.NewWhiteIpRepository(db)
 	whiteIpService := service2.NewWhiteService(whiteIpRepo)
 	whiteIpMiddleWare := midleware.WhiteIpMiddleware(whiteIpService)
 
-	userLoginRoute := router.Group("/api/user")
-	userLoginRoute.Use(whiteIpMiddleWare)
+	userRoute := router.Group("/api/user")
+	userRoute.Use(whiteIpMiddleWare)
 	{
-		userLoginRoute.GET("/user-login/:username", userHandler.FindUserLoginByUserName)
+		userRoute.GET("/:username", userHandler.FindUserLoginByUserName)
+		userRoute.POST("/", userHandler.CreateUser)
 	}
 
 }

@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	_ "github.com/golang-jwt/jwt/v5"
+	http2 "go-microservices/cmd/auth/internal/api/handler/http"
+	"go-microservices/internal/api/request"
+	error2 "go-microservices/internal/error"
+	"go-microservices/internal/helper"
 	"time"
 )
 
 type AuthServiceInterface interface {
-	Login(username, password string) (string, error)
-	Register(username, password, email string) error
+	Login(username, password string) (*string, error)
+	Register(request *request.UserCreationRequest) error
 	GenerateToken(username, roles, email string) (string, error)
 	ParseToken(token string) (*jwt.Token, error)
 }
@@ -22,19 +26,31 @@ type CustomClaims struct {
 }
 
 type AuthService struct {
-	SecretKey *string
+	SecretKey   *string
+	httpHandler *http2.HttpHandler
 }
 
-func NewAuthService(SecretKey *string) *AuthService {
-	return &AuthService{SecretKey: SecretKey}
+func NewAuthService(SecretKey *string, httpHandler *http2.HttpHandler) *AuthService {
+	return &AuthService{SecretKey: SecretKey, httpHandler: httpHandler}
 }
 
-func (s *AuthService) Login(username, password string) (string, error) {
-	return username, nil
+func (s *AuthService) Login(username, password string) (*string, error) {
+	userInfo, err := s.httpHandler.GetUserInfoByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	if !helper.CheckPasswordHash(password, userInfo.HashPassword) {
+		return nil, error2.NewAppError("Password incorect")
+	}
+	token, err := s.GenerateToken(userInfo.Username, userInfo.Roles, userInfo.Email)
+	if err != nil {
+		return nil, err
+	}
+	return &token, nil
 }
 
-func (s *AuthService) Register(username, password, email string) error {
-	return nil
+func (s *AuthService) Register(request *request.UserCreationRequest) error {
+	return s.httpHandler.CreateUser(request)
 }
 
 func (s *AuthService) GenerateToken(username, roles, email string) (string, error) {
