@@ -6,6 +6,7 @@ import (
 	"go-microservices/cmd/auth/internal/service"
 	request3 "go-microservices/internal/api/request"
 	"net/http"
+	"strings"
 )
 
 type AuthHandler struct {
@@ -43,4 +44,31 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"message": "register successfully"})
+}
+func (h *AuthHandler) ParseToken(c *gin.Context) {
+	tokenString := c.GetHeader("Authorization")
+	splitToken := strings.Split(tokenString, " ")
+
+	tokenString = splitToken[1]
+	if tokenString == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "token is empty"})
+		return
+	}
+	token, err := h.authService.ParseToken(tokenString)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	claims, oke := token.Claims.(*service.CustomClaims)
+	if !oke {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "token error"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"username": claims.Username,
+		"email":    claims.Email,
+		"role":     claims.Role,
+	})
+
 }

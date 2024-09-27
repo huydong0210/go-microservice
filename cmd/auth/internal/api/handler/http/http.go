@@ -1,13 +1,11 @@
 package http
 
 import (
-	"bytes"
 	"encoding/json"
 	"github.com/joho/godotenv"
+	http2 "go-microservices/internal/api/http"
 	"go-microservices/internal/api/request"
 	"go-microservices/internal/api/response"
-	error2 "go-microservices/internal/error"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -33,11 +31,11 @@ func NewHttpHandler() *HttpHandler {
 }
 func (h *HttpHandler) GetUserInfoByUsername(username string) (*response.UserInfoResponse, error) {
 	log.Println("Calling user service : GetUserInfoByUsername")
-	request, err := h.makeRequest(http.MethodGet, "/api/user/"+username, nil)
+	request, err := http2.MakeRequest("http://localhost"+h.address.UserServiceAddress+"/api/user/"+username, http.MethodGet, nil, nil)
 	if err != nil {
 		return nil, err
 	}
-	res, err := h.doRequest(request)
+	res, err := http2.DoRequest(request)
 	if err != nil {
 		return nil, err
 	}
@@ -60,57 +58,16 @@ func (h *HttpHandler) CreateUser(creationRequest *request.UserCreationRequest) e
 	requestBody["password"] = creationRequest.Password
 	requestBody["email"] = creationRequest.Email
 
-	request, err := h.makeRequest(http.MethodPost, "/api/user", requestBody)
+	request, err := http2.MakeRequest("http://localhost"+h.address.UserServiceAddress+"/api/user", http.MethodPost, requestBody, nil)
 	if err != nil {
 		return err
 	}
-	res, err := h.doRequest(request)
+	res, err := http2.DoRequest(request)
 	_ = res
 	if err != nil {
 		return err
 	}
 	return nil
-}
-
-func (h *HttpHandler) doRequest(request *http.Request) (*string, error) {
-	client := &http.Client{}
-	response, err := client.Do(request)
-	if err != nil {
-		return nil, err
-	}
-	if response.StatusCode != http.StatusOK {
-		var data map[string]string
-		err = json.NewDecoder(response.Body).Decode(&data)
-		if err != nil {
-			return nil, err
-		}
-		return nil, error2.NewAppError(data["error"])
-	}
-
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-	result := string(responseBody)
-
-	defer response.Body.Close()
-	return &result, nil
-
-}
-
-func (h *HttpHandler) makeRequest(method, path string, requestBody map[string]string) (*http.Request, error) {
-	uri := buildUrI(h.address.UserServiceAddress) + path
-	jsonBody, err := json.Marshal(requestBody)
-	if err != nil {
-		return nil, err
-	}
-	request, err := http.NewRequest(method, uri, bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return nil, err
-	}
-	request.Header.Set("Content-Type", "application/json; charset=utf-8")
-	return request, nil
-
 }
 
 func loadAddressConfig() (*AddressServiceConfig, error) {
@@ -126,8 +83,4 @@ func loadAddressConfig() (*AddressServiceConfig, error) {
 	}
 
 	return config, nil
-}
-
-func buildUrI(address string) string {
-	return "http://" + "localhost" + address
 }
