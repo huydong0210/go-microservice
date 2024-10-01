@@ -6,6 +6,7 @@ import (
 	"go-microservices/cmd/to_do/internal/config"
 	"go-microservices/cmd/to_do/internal/repository"
 	"go-microservices/cmd/to_do/internal/service"
+	"go-microservices/internal/midleware"
 	"gorm.io/gorm"
 )
 
@@ -15,7 +16,11 @@ func SetUpRoutes(router *gin.Engine, db *gorm.DB, cfg *config.Config) {
 	toDoService := service.NewTodoItemService(todoRepo)
 	todoHandler := handler.NewTodoItemHandler(toDoService)
 
+	jwtMiddleWare := midleware.JwtMiddleWare()
+
 	todoRoutes := router.Group("/api/todo-item")
+	todoRoutes.Use(jwtMiddleWare)
+
 	{
 		todoRoutes.GET("/:id", todoHandler.GetTodoItemById)
 		todoRoutes.GET("/", todoHandler.GetListTodoItem)
