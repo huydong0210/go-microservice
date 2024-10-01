@@ -72,12 +72,14 @@ func (s *AuthService) GenerateToken(id uint, username, roles, email string) (str
 	return tokenString, err
 }
 func (s *AuthService) ParseToken(tokenString string) (*jwt.Token, error) {
+
+	secretKey := []byte(*s.SecretKey)
 	var result CustomClaims
 	token, err := jwt.ParseWithClaims(tokenString, &result, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return s.SecretKey, nil
+		return secretKey, nil
 	})
 	return token, err
 }

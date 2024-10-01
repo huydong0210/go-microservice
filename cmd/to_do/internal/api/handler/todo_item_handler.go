@@ -33,7 +33,7 @@ func (h *TodoItemHandler) GetTodoItemById(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	userPrincipal := value.(midleware.UserPrincipal)
+	userPrincipal := value.(*midleware.UserPrincipal)
 
 	item, err := h.TodoItemService.FindTodoItemById(uint(id), userPrincipal.Id)
 	if err != nil {
@@ -45,6 +45,24 @@ func (h *TodoItemHandler) GetTodoItemById(c *gin.Context) {
 }
 
 func (h *TodoItemHandler) GetListTodoItem(c *gin.Context) {
+
+	value, oke := c.Get(midleware.USER_PRICIPAL_CONTEXT_KEY)
+	if !oke {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "internal server error",
+		})
+		return
+	}
+
+	userPrincipal := value.(*midleware.UserPrincipal)
+
+	items, err := h.TodoItemService.FindAllTodoItem(userPrincipal.Id)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": items})
 
 }
 
@@ -60,10 +78,9 @@ func (h *TodoItemHandler) CreateTodoItem(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": "internal server error",
 		})
-		c.Abort()
 		return
 	}
-	userPrincipal := value.(midleware.UserPrincipal)
+	userPrincipal := value.(*midleware.UserPrincipal)
 
 	err := h.TodoItemService.CreateTodoItem(&model.TodoItem{
 		Name:   request.Name,
@@ -97,7 +114,7 @@ func (h *TodoItemHandler) DeleteTodoItem(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	userPrincipal := value.(midleware.UserPrincipal)
+	userPrincipal := value.(*midleware.UserPrincipal)
 
 	err = h.TodoItemService.DeleteTodoItem(uint(id), userPrincipal.Id)
 	if err != nil {
@@ -123,10 +140,9 @@ func (h *TodoItemHandler) UpdateTodoItem(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": "internal server error",
 		})
-		c.Abort()
 		return
 	}
-	userPrincipal := value.(midleware.UserPrincipal)
+	userPrincipal := value.(*midleware.UserPrincipal)
 
 	item := &model.TodoItem{
 		Name:  request.Name,

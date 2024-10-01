@@ -28,6 +28,7 @@ func SetUpRoutes(router *gin.Engine, db *gorm.DB, cfg *config.Config) {
 	{
 		authRoutes.POST("/login", authHandler.Login)
 		authRoutes.POST("/register", authHandler.Register)
+		authRoutes.GET("/token", authHandler.ParseToken)
 
 	}
 

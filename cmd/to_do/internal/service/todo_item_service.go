@@ -10,6 +10,7 @@ type TodoItemServiceInterface interface {
 	DeleteTodoItem(itemId uint, userId uint) error
 	UpdateTodoItem(itemId uint, userId uint, item *model.TodoItem) error
 	FindTodoItemById(itemId uint, userId uint) (*model.TodoItem, error)
+	FindAllTodoItem(userId uint) ([]model.TodoItem, error)
 }
 type TodoItemService struct {
 	repo *repository.TodoItemRepository
@@ -29,4 +30,7 @@ func (s TodoItemService) UpdateTodoItem(itemId uint, userId uint, item *model.To
 }
 func (s TodoItemService) FindTodoItemById(itemId uint, userId uint) (*model.TodoItem, error) {
 	return s.repo.FindTodoItemById(itemId, userId)
+}
+func (s TodoItemService) FindAllTodoItem(userId uint) ([]model.TodoItem, error) {
+	return s.repo.FindAllTodoItem(userId)
 }

@@ -27,3 +27,8 @@ func (repo TodoItemRepository) FindTodoItemById(itemId uint, userId uint) (*mode
 	result := repo.db.Where("id = ? and user_id = ?", itemId, userId).First(&item, itemId)
 	return &item, result.Error
 }
+func (repo TodoItemRepository) FindAllTodoItem(userId uint) ([]model.TodoItem, error) {
+	var items []model.TodoItem
+	result := repo.db.Where("user_id = ?", userId).Find(&items)
+	return items, result.Error
+}
